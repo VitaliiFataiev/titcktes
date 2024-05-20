@@ -1,4 +1,5 @@
 import datetime
+import streamlit as st
 
 class Ticket:
     def __init__(self, event_name, event_date, price, location):
@@ -16,63 +17,47 @@ tickets.append(Ticket("Виступ Cirque du Soleil", datetime.datetime(2024, 9
 tickets.append(Ticket("Концерт Монатика", datetime.datetime(2024, 5, 25), 700, "Арена Львів, Львів"))
 
 def display_tickets():
-    available_tickets = 0
+    st.subheader("Список квитків")
     for i, ticket in enumerate(tickets):
-        print(f"{i + 1}. Назва події: {ticket.event_name}")
-        print(f"   Дата: {ticket.event_date.strftime('%d.%m.%Y')}")
-        print(f"   Ціна: ₴{ticket.price:.2f}")
-        print(f"   Місце: {ticket.location}\n")
-        available_tickets += 1
-    print(f"Загальна кількість квитків: {len(tickets)}")
-    print(f"Доступно квитків: {available_tickets}")
+        st.write(f"{i + 1}. **Назва події:** {ticket.event_name}")
+        st.write(f"   **Дата:** {ticket.event_date.strftime('%d.%m.%Y')}")
+        st.write(f"   **Ціна:** ₴{ticket.price:.2f}")
+        st.write(f"   **Місце:** {ticket.location}")
+    st.write(f"Загальна кількість квитків: {len(tickets)}")
 
 def add_ticket():
-    event_name = input("Введіть назву події: ")
-    event_date = input("Введіть дату події (у форматі дд.мм.рррр): ")
-    try:
-        event_date = datetime.datetime.strptime(event_date, "%d.%m.%Y")
-    except ValueError:
-        print("Невірний формат дати. Спробуйте ще раз.")
-        return
-    try:
-        price = float(input("Введіть ціну квитка: ₴"))
-    except ValueError:
-        print("Невірний формат ціни. Спробуйте ще раз.")
-        return
-    location = input("Введіть місце проведення: ")
-    tickets.append(Ticket(event_name, event_date, price, location))
-    print("Квиток успішно додано!")
+    st.subheader("Додавання нового квитка")
+    event_name = st.text_input("Назва події")
+    event_date = st.date_input("Дата події", min_value=datetime.date.today())
+    price = st.number_input("Ціна квитка", min_value=0.0)
+    location = st.text_input("Місце проведення")
+    if st.button("Додати квиток"):
+        tickets.append(Ticket(event_name, event_date, price, location))
+        st.success("Квиток успішно додано!")
 
 def delete_ticket():
-    display_tickets()
-    try:
-        index = int(input("Введіть номер квитка, який потрібно видалити: ")) - 1
-        if 0 <= index < len(tickets):
+    st.subheader("Видалення квитка")
+    if tickets:
+        ticket_options = [f"{i + 1}. {ticket.event_name}" for i, ticket in enumerate(tickets)]
+        ticket_to_delete = st.selectbox("Оберіть квиток для видалення", ticket_options)
+        if st.button("Видалити"):
+            index = ticket_options.index(ticket_to_delete)
             del tickets[index]
-            print("Квиток успішно видалено!")
-        else:
-            print("Недійсний номер квитка. Спробуйте ще раз.")
-    except ValueError:
-        print("Невірний формат номера. Спробуйте ще раз.")
+            st.success("Квиток успішно видалено!")
+    else:
+        st.warning("Немає квитків для видалення.")
 
-if __name__ == "__main__":
-    print("Ласкаво просимо до платформи продажу музичних квитків!")
-    while True:
-        print("\nОберіть дію:")
-        print("1. Показати список квитків")
-        print("2. Додати новий квиток")
-        print("3. Видалити квиток")
-        print("4. Вийти")
-        choice = input("Ваш вибір: ")
+st.title("Платформа продажу музичних квитків")
 
-        if choice == "1":
-            display_tickets()
-        elif choice == "2":
-            add_ticket()
-        elif choice == "3":
-            delete_ticket()
-        elif choice == "4":
-            print("Дякуємо за використання нашої платформи!")
-            break
-        else:
-            print("Невірний вибір. Спробуйте ще раз.")
+while True:
+    choice = st.sidebar.selectbox("Оберіть дію", ["Показати список квитків", "Додати новий квиток", "Видалити квиток", "Вийти"])
+
+    if choice == "Показати список квитків":
+        display_tickets()
+    elif choice == "Додати новий квиток":
+        add_ticket()
+    elif choice == "Видалити квиток":
+        delete_ticket()
+    elif choice == "Вийти":
+        st.write("Дякуємо за використання нашої платформи!")
+        break
