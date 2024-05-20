@@ -34,6 +34,7 @@ def add_ticket():
             return
         tickets.append(Ticket(event_name, event_date, price / 28.1, location))
         st.success("Квиток успішно додано!")
+        display_tickets()  # Оновлення відображення списку квитків
 
 def delete_ticket():
     st.write("## Видалення квитка")
