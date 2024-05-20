@@ -14,13 +14,16 @@ tickets = []
 
 def display_tickets():
     st.write("## Список квитків")
-    for i, ticket in enumerate(tickets):
-        st.write(f"**{i + 1}. Назва події:** {ticket.event_name}")
-        st.write(f"   **Дата:** {ticket.event_date.strftime('%d.%m.%Y')}")
-        st.write(f"   **Ціна:** ₴{ticket.price * 28.1:.2f}")
-        st.write(f"   **Місце:** {ticket.location}")
-        st.write("---")
-    st.write(f"**Загальна кількість квитків:** {len(tickets)}")
+    if not tickets:
+        st.write("Список квитків порожній.")
+    else:
+        for i, ticket in enumerate(tickets):
+            st.write(f"**{i + 1}. Назва події:** {ticket.event_name}")
+            st.write(f"   **Дата:** {ticket.event_date.strftime('%d.%m.%Y')}")
+            st.write(f"   **Ціна:** ₴{ticket.price * 28.1:.2f}")
+            st.write(f"   **Місце:** {ticket.location}")
+            st.write("---")
+        st.write(f"**Загальна кількість квитків:** {len(tickets)}")
 
 def add_ticket():
     st.write("## Додавання нового квитка")
@@ -51,6 +54,7 @@ def delete_ticket():
         index_to_delete = ticket_options.index(selected_ticket)
         del tickets[index_to_delete]
         st.success("Квиток успішно видалено!")
+        display_tickets()  # Оновлення відображення списку квитків
 
 def save_to_file():
     filename = "tickets.json"
@@ -103,6 +107,3 @@ elif choice == "Зберегти дані у файл":
 elif choice == "Вийти":
     save_to_file()  # Збереження перед виходом
     st.write("Дякуємо за використання нашої платформи!")
-
-
-
