@@ -36,9 +36,17 @@ def add_ticket():
         if not event_name or not location:
             st.warning("Будь ласка, введіть назву події та місце проведення.")
             return
-        tickets.append(Ticket(event_name, event_date, price / 28.1, location))
+        new_ticket = Ticket(event_name, event_date, price / 28.1, location)
+        tickets.append(new_ticket)
         st.success("Квиток успішно додано!")
-        display_tickets()  # Оновлення відображення списку квитків
+        display_single_ticket(new_ticket)  # Відображення доданого квитка
+
+def display_single_ticket(ticket):
+    st.write("## Інформація про квиток")
+    st.write(f"**Назва події:** {ticket.event_name}")
+    st.write(f"**Дата:** {ticket.event_date.strftime('%d.%m.%Y')}")
+    st.write(f"**Ціна:** ₴{ticket.price * 28.1:.2f}")
+    st.write(f"**Місце:** {ticket.location}")
 
 def delete_ticket():
     st.write("## Видалення квитка")
@@ -54,7 +62,6 @@ def delete_ticket():
         index_to_delete = ticket_options.index(selected_ticket)
         del tickets[index_to_delete]
         st.success("Квиток успішно видалено!")
-        display_tickets()  # Оновлення відображення списку квитків
 
 def save_to_file():
     filename = "tickets.json"
@@ -97,7 +104,10 @@ menu = ["Показати список квитків", "Додати новий
 choice = st.sidebar.selectbox("Оберіть дію:", menu)
 
 if choice == "Показати список квитків":
-    display_tickets()
+    if tickets:
+        display_tickets()
+    else:
+        st.warning("Список квитків порожній.")
 elif choice == "Додати новий квиток":
     add_ticket()
 elif choice == "Видалити квиток":
