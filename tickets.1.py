@@ -1,5 +1,7 @@
-import datetime
 import streamlit as st
+import datetime
+import json
+import os
 
 class Ticket:
     def __init__(self, event_name, event_date, price, location):
@@ -10,56 +12,129 @@ class Ticket:
 
 tickets = []
 
-tickets.append(Ticket("Концерт гурту Imagine Dragons", datetime.datetime(2024, 7, 10), 1200, "НСК \"Олімпійський\", Київ"))
-tickets.append(Ticket("Фестиваль Atlas Weekend", datetime.datetime(2024, 6, 27), 2500, "ВДНГ, Київ"))
-tickets.append(Ticket("Опера \"Кармен\" в Одеському театрі", datetime.datetime(2024, 8, 15), 800, "Одеський національний академічний театр опери та балету"))
-tickets.append(Ticket("Виступ Cirque du Soleil", datetime.datetime(2024, 9, 5), 1500, "Палац спорту, Київ"))
-tickets.append(Ticket("Концерт Монатика", datetime.datetime(2024, 5, 25), 700, "Арена Львів, Львів"))
-
 def display_tickets():
-    st.subheader("Список квитків")
+    st.write("## Список квитків")
     for i, ticket in enumerate(tickets):
-        st.write(f"{i + 1}. **Назва події:** {ticket.event_name}")
+        st.write(f"**{i + 1}. Назва події:** {ticket.event_name}")
         st.write(f"   **Дата:** {ticket.event_date.strftime('%d.%m.%Y')}")
-        st.write(f"   **Ціна:** ₴{ticket.price:.2f}")
+        st.write(f"   **Ціна:** ₴{ticket.price * 28.1:.2f}")
         st.write(f"   **Місце:** {ticket.location}")
-    st.write(f"Загальна кількість квитків: {len(tickets)}")
+        st.write("---")
+    st.write(f"**Загальна кількість квитків:** {len(tickets)}")
 
 def add_ticket():
-    st.subheader("Додавання нового квитка")
-    with st.form(key='add_ticket_form'):
-        event_name = st.text_input("Назва події", key='event_name')
-        event_date = st.date_input("Дата події", min_value=datetime.date.today(), key='event_date')
-        price = st.number_input("Ціна квитка", min_value=0.0, key='price')
-        location = st.text_input("Місце проведення", key='location')
-        submit_button = st.form_submit_button(label='Додати квиток')
-        if submit_button:
-            tickets.append(Ticket(event_name, event_date, price, location))
-            st.success("Квиток успішно додано!")
+    st.write("## Додавання нового квитка")
+    event_name = st.text_input("Назва події:")
+    event_date = st.date_input("Дата події:", datetime.date.today())
+    price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
+    location = st.text_input("Місце проведення:")
+
+    if st.button("Додати квиток"):
+        if not event_name or not location:
+            st.warning("Будь ласка, введіть назву події та місце проведення.")
+            return
+        tickets.append(Ticket(event_name, event_date, price / 28.1, location))
+        st.success("Квиток успішно додано!")
+        display_tickets()  # Оновлення відображення списку квитків
 
 def delete_ticket():
-    st.subheader("Видалення квитка")
-    if tickets:
-        ticket_options = [f"{i + 1}. {ticket.event_name}" for i, ticket in enumerate(tickets)]
-        ticket_to_delete = st.selectbox("Оберіть квиток для видалення", ticket_options, key='ticket_to_delete')
-        if st.button("Видалити", key='delete_button'):
-            index = ticket_options.index(ticket_to_delete)
-            del tickets[index]
-            st.success("Квиток успішно видалено!")
+    st.write("## Видалення квитка")
+    if not tickets:
+        st.warning("Список квитків порожній.")
+        return
+
+    st.write("### Оберіть квиток для видалення:")
+    ticket_options = [ticket.event_name for ticket in tickets]
+    selected_ticket = st.selectbox("", ticket_options)
+
+    if st.button("Видалити квиток"):
+        index_to_delete = ticket_options.index(selected_ticket)
+        del tickets[index_to_delete]
+        st.success("Квиток успішно видалено!")
+
+def save_to_file():
+    filename = "tickets.json"
+    data = []
+    for ticket in tickets:
+        data.append({
+            "event_name": ticket.event_name,
+            "event_date": ticket.event_date.strftime("%d.%м.%Y"),
+            "price": ticket.price,
+            "location": ticket.location
+        })
+    with open(filename, 'w') as file:
+        json.dump(data, file, indent=4)
+    st.success(f"Дані було успішно збережено у файл {filename}")
+
+def load_from_file():
+    filename = "tickets.json"
+    if os.path.exists(filename):
+        try:
+            with open(filename, 'r') as file:
+                data = json.load(file)
+                tickets.clear()
+                for ticket_data in data:
+                    event_name = ticket_data["event_name"]
+                    event_date = datetime.datetime.strptime(ticket_data["event_date"], "%d.%м.%Y")
+                    price = float(ticket_data["price"])
+                    location = ticket_data["location"]
+                    tickets.append(Ticket(event_name, event_date, price, location))
+            st.success(f"Дані було успішно завантажено з файлу {filename}")
+        except Exception as e:
+            st.error(f"Помилка завантаження даних з файлу {filename}: {e}")
     else:
-        st.warning("Немає квитків для видалення.")
+        st.warning(f"Файл {filename} не знайдено. Немає даних для завантаження.")
 
 st.title("Платформа продажу музичних квитків")
 
-while True:
-    choice = st.sidebar.selectbox("Оберіть дію", ["Показати список квитків", "Додати новий квиток", "Видалити квиток", "Вийти"], key='choice')
+load_from_file()
 
-    if choice == "Показати список квитків":
-        display_tickets()
-    elif choice == "Додати новий квиток":
-        add_ticket()
-    elif choice == "Видалити квиток":
-        delete_ticket()
-    elif choice == "Вийти":
-        st.write("Дякуємо за використання нашої платформи!")
-        break
+menu = ["Показати список квитків", "Додати новий квиток", "Видалити квиток", "Зберегти дані у файл", "Вийти"]
+choice = st.sidebar.selectbox("Оберіть дію:", menu)
+
+if choice == "Показати список квитків":
+    display_tickets()
+elif choice == "Додати новий квиток":
+    add_ticket()
+elif choice == "Видалити квиток":
+    delete_ticket()
+elif choice == "Зберегти дані у файл":
+    save_to_file()
+elif choice == "Вийти":
+    save_to_file()  # Збереження перед виходом
+    st.write("Дякуємо за використання нашої платформи!")
+
+[
+    {
+        "event_name": "Концерт Imagine Dragons",
+        "event_date": "10.м.2024",
+        "price": 1200,
+        "location": "НСК \"Олімпійський\", Київ"
+    },
+    {
+        "event_name": "Фестиваль Atlas Weekend",
+        "event_date": "27.м.2024",
+        "price": 2500,
+        "location": "ВДНГ, Київ"
+    },
+    {
+        "event_name": "Опера \"Кармен\"",
+        "event_date": "15.м.2024",
+        "price": 800,
+        "location": "Одеський національний академічний театр опери та балету"
+    },
+    {
+        "event_name": "Виступ Cirque du Soleil",
+        "event_date": "05.м.2024",
+        "price": 1500,
+        "location": "Палац спорту, Київ"
+    },
+    {
+        "event_name": "Концерт Монатика",
+        "event_date": "25.м.2024",
+        "price": 700,
+        "location": "Арена Львів, Львів"
+    }
+]
+
+перевір
