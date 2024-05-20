@@ -36,17 +36,8 @@ def add_ticket():
         if not event_name or not location:
             st.warning("Будь ласка, введіть назву події та місце проведення.")
             return
-        new_ticket = Ticket(event_name, event_date, price / 28.1, location)
-        tickets.append(new_ticket)
+        tickets.append(Ticket(event_name, event_date, price / 28.1, location))
         st.success("Квиток успішно додано!")
-        display_single_ticket(new_ticket)  # Відображення доданого квитка
-
-def display_single_ticket(ticket):
-    st.write("## Інформація про квиток")
-    st.write(f"**Назва події:** {ticket.event_name}")
-    st.write(f"**Дата:** {ticket.event_date.strftime('%d.%m.%Y')}")
-    st.write(f"**Ціна:** ₴{ticket.price * 28.1:.2f}")
-    st.write(f"**Місце:** {ticket.location}")
 
 def delete_ticket():
     st.write("## Видалення квитка")
@@ -104,10 +95,7 @@ menu = ["Показати список квитків", "Додати новий
 choice = st.sidebar.selectbox("Оберіть дію:", menu)
 
 if choice == "Показати список квитків":
-    if tickets:
-        display_tickets()
-    else:
-        st.warning("Список квитків порожній.")
+    display_tickets()
 elif choice == "Додати новий квиток":
     add_ticket()
 elif choice == "Видалити квиток":
