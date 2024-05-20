@@ -24,23 +24,18 @@ def display_tickets():
 
 def add_ticket():
     st.write("## Додавання нового квитка")
-    
-    while True:
-        event_name = st.text_input("Назва події:")
-        event_date = st.date_input("Дата події:", datetime.date.today())
-        price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
-        location = st.text_input("Місце проведення:")
+    event_name = st.text_input("Назва події:")
+    event_date = st.date_input("Дата події:", datetime.date.today())
+    price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
+    location = st.text_input("Місце проведення:")
 
-        if st.button("Додати квиток"):
-            if not event_name or not location:
-                st.warning("Будь ласка, введіть назву події та місце проведення.")
-            else:
-                tickets.append(Ticket(event_name, event_date, price / 28.1, location))
-                st.success("Квиток успішно додано!")
-                display_tickets()  # Оновлення відображення списку квитків
-
-        if not st.button("Додати ще один квиток"):
-            break
+    if st.button("Додати квиток"):
+        if not event_name or not location:
+            st.warning("Будь ласка, введіть назву події та місце проведення.")
+            return
+        tickets.append(Ticket(event_name, event_date, price / 28.1, location))
+        st.success("Квиток успішно додано!")
+        display_tickets()  # Оновлення відображення списку квитків
 
 def delete_ticket():
     st.write("## Видалення квитка")
@@ -71,10 +66,11 @@ def save_to_file():
         json.dump(data, file, indent=4)
     st.success(f"Дані було успішно збережено у файл {filename}")
 
-def load_data(file_path):
-    if os.path.exists(file_path):
+def load_from_file():
+    filename = "tickets.json"
+    if os.path.exists(filename):
         try:
-            with open(file_path, 'r') as file:
+            with open(filename, 'r') as file:
                 data = json.load(file)
                 tickets.clear()
                 for ticket_data in data:
@@ -83,20 +79,20 @@ def load_data(file_path):
                     price = float(ticket_data["price"])
                     location = ticket_data["location"]
                     tickets.append(Ticket(event_name, event_date, price, location))
-            st.success(f"Дані було успішно завантажено з файлу {file_path}")
+            st.success(f"Дані було успішно завантажено з файлу {filename}")
         except Exception as e:
-            st.error(f"Помилка завантаження даних з файлу {file_path}: {e}")
+            st.error(f"Помилка завантаження даних з файлу {filename}: {e}")
     else:
-        st.warning(f"Файл {file_path} не знайдено. Немає даних для завантаження.")
+        st.warning(f"Файл {filename} не знайдено. Немає даних для завантаження.")
 
 st.title("Платформа продажу музичних квитків")
 
-menu = ["Завантажити дані", "Показати список квитків", "Додати новий квиток", "Видалити квиток", "Зберегти дані у файл", "Вийти"]
+load_from_file()
+
+menu = ["Показати список квитків", "Додати новий квиток", "Видалити квиток", "Зберегти дані у файл", "Вийти"]
 choice = st.sidebar.selectbox("Оберіть дію:", menu)
 
-if choice == "Завантажити дані":
-    load_data("tickets.json")
-elif choice == "Показати список квитків":
+if choice == "Показати список квитків":
     display_tickets()
 elif choice == "Додати новий квиток":
     add_ticket()
