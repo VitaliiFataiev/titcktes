@@ -26,10 +26,10 @@ def add_ticket():
     st.write("## Додавання нового квитка")
     
     while True:
-        event_name = st.text_input("Назва події:")
-        event_date = st.date_input("Дата події:", datetime.date.today())
-        price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
-        location = st.text_input("Місце проведення:")
+        event_name = st.text_input(f"Назва події-{len(tickets)+1}:")
+        event_date = st.date_input(f"Дата події-{len(tickets)+1}:", datetime.date.today())
+        price = st.number_input(f"Ціна квитка (в гривнях)-{len(tickets)+1}:", value=0.0)
+        location = st.text_input(f"Місце проведення-{len(tickets)+1}:")
 
         if st.button("Додати квиток"):
             if not event_name or not location:
