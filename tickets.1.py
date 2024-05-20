@@ -26,10 +26,10 @@ def add_ticket():
     st.write("## Додавання нового квитка")
     
     while True:
-        event_name = st.text_input(f"Назва події-{len(tickets)+1}:")
-        event_date = st.date_input(f"Дата події-{len(tickets)+1}:", datetime.date.today())
-        price = st.number_input(f"Ціна квитка (в гривнях)-{len(tickets)+1}:", value=0.0)
-        location = st.text_input(f"Місце проведення-{len(tickets)+1}:")
+        event_name = st.text_input("Назва події:")
+        event_date = st.date_input("Дата події:", datetime.date.today())
+        price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
+        location = st.text_input("Місце проведення:")
 
         if st.button("Додати квиток"):
             if not event_name or not location:
@@ -71,11 +71,10 @@ def save_to_file():
         json.dump(data, file, indent=4)
     st.success(f"Дані було успішно збережено у файл {filename}")
 
-def load_from_file():
-    filename = "tickets.json"
-    if os.path.exists(filename):
+def load_data(file_path):
+    if os.path.exists(file_path):
         try:
-            with open(filename, 'r') as file:
+            with open(file_path, 'r') as file:
                 data = json.load(file)
                 tickets.clear()
                 for ticket_data in data:
@@ -84,11 +83,15 @@ def load_from_file():
                     price = float(ticket_data["price"])
                     location = ticket_data["location"]
                     tickets.append(Ticket(event_name, event_date, price, location))
-            st.success(f"Дані було успішно завантажено з файлу {filename}")
+            st.success(f"Дані було успішно завантажено з файлу {file_path}")
         except Exception as e:
-            st.error(f"Помилка завантаження даних з файлу {filename}: {e}")
+            st.error(f"Помилка завантаження даних з файлу {file_path}: {e}")
     else:
-        st.warning(f"Файл {filename} не знайдено. Немає даних для завантаження.")
+        st.warning(f"Файл {file_path} не знайдено. Немає даних для завантаження.")
+
+def load_from_file():
+    filename = "tickets.json"
+    load_data(filename)
 
 st.title("Платформа продажу музичних квитків")
 
