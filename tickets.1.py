@@ -89,18 +89,14 @@ def load_data(file_path):
     else:
         st.warning(f"Файл {file_path} не знайдено. Немає даних для завантаження.")
 
-def load_from_file():
-    filename = "tickets.json"
-    load_data(filename)
-
 st.title("Платформа продажу музичних квитків")
 
-load_from_file()
-
-menu = ["Показати список квитків", "Додати новий квиток", "Видалити квиток", "Зберегти дані у файл", "Вийти"]
+menu = ["Завантажити дані", "Показати список квитків", "Додати новий квиток", "Видалити квиток", "Зберегти дані у файл", "Вийти"]
 choice = st.sidebar.selectbox("Оберіть дію:", menu)
 
-if choice == "Показати список квитків":
+if choice == "Завантажити дані":
+    load_data("tickets.json")
+elif choice == "Показати список квитків":
     display_tickets()
 elif choice == "Додати новий квиток":
     add_ticket()
