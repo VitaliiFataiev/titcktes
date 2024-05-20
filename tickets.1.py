@@ -25,6 +25,7 @@ def display_tickets():
             st.write("---")
         st.write(f"**Загальна кількість квитків:** {len(tickets)}")
 
+
 def add_ticket():
     st.write("## Додавання нового квитка")
     event_name = st.text_input("Назва події:")
