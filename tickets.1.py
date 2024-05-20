@@ -1,6 +1,7 @@
 import streamlit as st
 import datetime
 import json
+import os
 
 class Ticket:
     def __init__(self, event_name, event_date, price, location):
@@ -53,20 +54,35 @@ def delete_ticket():
 
 def save_to_file():
     filename = "tickets.json"
+    data = []
+    for ticket in tickets:
+        data.append({
+            "event_name": ticket.event_name,
+            "event_date": ticket.event_date.strftime("%d.%м.%Y"),
+            "price": ticket.price,
+            "location": ticket.location
+        })
     with open(filename, 'w') as file:
-        json.dump([ticket.__dict__ for ticket in tickets], file, indent=4)
+        json.dump(data, file, indent=4)
     st.success(f"Дані було успішно збережено у файл {filename}")
 
 def load_from_file():
     filename = "tickets.json"
-    try:
-        with open(filename, 'r') as file:
-            data = json.load(file)
-            tickets.clear()
-            for ticket_data in data:
-                tickets.append(Ticket(**ticket_data))
-        st.success(f"Дані було успішно завантажено з файлу {filename}")
-    except FileNotFoundError:
+    if os.path.exists(filename):
+        try:
+            with open(filename, 'r') as file:
+                data = json.load(file)
+                tickets.clear()
+                for ticket_data in data:
+                    event_name = ticket_data["event_name"]
+                    event_date = datetime.datetime.strptime(ticket_data["event_date"], "%d.%м.%Y")
+                    price = float(ticket_data["price"])
+                    location = ticket_data["location"]
+                    tickets.append(Ticket(event_name, event_date, price, location))
+            st.success(f"Дані було успішно завантажено з файлу {filename}")
+        except Exception as e:
+            st.error(f"Помилка завантаження даних з файлу {filename}: {e}")
+    else:
         st.warning(f"Файл {filename} не знайдено. Немає даних для завантаження.")
 
 st.title("Платформа продажу музичних квитків")
