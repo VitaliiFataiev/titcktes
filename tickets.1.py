@@ -24,18 +24,23 @@ def display_tickets():
 
 def add_ticket():
     st.write("## Додавання нового квитка")
-    event_name = st.text_input("Назва події:")
-    event_date = st.date_input("Дата події:", datetime.date.today())
-    price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
-    location = st.text_input("Місце проведення:")
+    
+    while True:
+        event_name = st.text_input("Назва події:")
+        event_date = st.date_input("Дата події:", datetime.date.today())
+        price = st.number_input("Ціна квитка (в гривнях):", value=0.0)
+        location = st.text_input("Місце проведення:")
 
-    if st.button("Додати квиток"):
-        if not event_name or not location:
-            st.warning("Будь ласка, введіть назву події та місце проведення.")
-            return
-        tickets.append(Ticket(event_name, event_date, price / 28.1, location))
-        st.success("Квиток успішно додано!")
-        display_tickets()  # Оновлення відображення списку квитків
+        if st.button("Додати квиток"):
+            if not event_name or not location:
+                st.warning("Будь ласка, введіть назву події та місце проведення.")
+            else:
+                tickets.append(Ticket(event_name, event_date, price / 28.1, location))
+                st.success("Квиток успішно додано!")
+                display_tickets()  # Оновлення відображення списку квитків
+
+        if not st.button("Додати ще один квиток"):
+            break
 
 def delete_ticket():
     st.write("## Видалення квитка")
@@ -103,4 +108,3 @@ elif choice == "Зберегти дані у файл":
 elif choice == "Вийти":
     save_to_file()  # Збереження перед виходом
     st.write("Дякуємо за використання нашої платформи!")
-
