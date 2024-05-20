@@ -104,6 +104,7 @@ elif choice == "Вийти":
     save_to_file()  # Збереження перед виходом
     st.write("Дякуємо за використання нашої платформи!")
 
+tickets_json = '''
 [
     {
         "event_name": "Концерт Imagine Dragons",
@@ -136,4 +137,8 @@ elif choice == "Вийти":
         "location": "Арена Львів, Львів"
     }
 ]
+'''
+
+tickets = json.loads(tickets_json)
+
 
